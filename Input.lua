@@ -2,8 +2,7 @@ local input_path = tostring(...):sub(1, -6)
 local Input = {}
 Input.__index = Input
 
-local mappings = love.filesystem.read(input_path .. 'gamecontrollerdb.txt')
-if love.joystick.loadGamepadMappings then love.joystick.loadGamepadMappings(mappings) end
+love.joystick.loadGamepadMappings(input_path .. 'gamecontrollerdb.txt')
 
 local all_keys = {
     "space", "return", "escape", "backspace", "tab", "space", "!", "\"", "#", "$", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4",
