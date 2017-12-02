@@ -38,8 +38,9 @@ Input.all_keys = {
     "dpdown", "dpleft", "dpright", "leftx", "lefty", "rightx", "righty",
 }
 
-function Input.new()
+function Input.new(opts)
     local self = {}
+    local opts = opts or {}
 
     self.prev_state = {}
     self.state = {}
@@ -48,7 +49,7 @@ function Input.new()
     self.repeat_state = {}
     self.sequences = {}
 
-    -- Gamepads... currently only supports 1 gamepad, adding support for more is not that hard, just lazy.
+    self.joystick_index = opts.joystick_index or 1
     self.joysticks = love.joystick.getJoysticks()
 
     -- Register callbacks automagically
@@ -145,7 +146,7 @@ function Input:sequence(...)
     end
 end
 
-local key_to_button = {mouse1 = '1', mouse2 = '2', mouse3 = '3', mouse4 = '4', mouse5 = '5'} 
+local key_to_button = {mouse1 = '1', mouse2 = '2', mouse3 = '3', mouse4 = '4', mouse5 = '5'}
 local gamepad_to_button = {fdown = 'a', fup = 'y', fleft = 'x', fright = 'b', back = 'back', guide = 'guide', start = 'start',
                            leftstick = 'leftstick', rightstick = 'rightstick', l1 = 'leftshoulder', r1 = 'rightshoulder',
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
@@ -177,13 +178,13 @@ function Input:down(action, interval, delay)
             if (love.keyboard.isDown(key) or love.mouse.isDown(key_to_button[key] or 0)) then
                 return true
             end
-            
-            -- Supports only 1 gamepad, add more later...
-            if self.joysticks[1] then
+
+            local joystick = self.joysticks[self.joystick_index]
+            if joystick then
                 if axis_to_button[key] then
                     return self.state[key]
                 elseif gamepad_to_button[key] then
-                    if self.joysticks[1]:isGamepadDown(gamepad_to_button[key]) then
+                    if joystick:isGamepadDown(gamepad_to_button[key]) then
                         return true
                     end
                 end
@@ -220,11 +221,11 @@ function Input:update()
 
     for k, v in pairs(self.repeat_state) do
         if v then
-            v.pressed = false 
+            v.pressed = false
             local t = love.timer.getTime() - v.pressed_time
-            if v.delay_stage then 
-                if t > v.delay then 
-                    v.pressed = true 
+            if v.delay_stage then
+                if t > v.delay then
+                    v.pressed = true
                     v.pressed_time = love.timer.getTime()
                     v.delay_stage = false
                 end
@@ -236,6 +237,11 @@ function Input:update()
             end
         end
     end
+end
+
+function Input:setJoystickIndex(index)
+  if index < 0 then error("Joystick index can't be lower than 1") end
+  self.joystick_index = index
 end
 
 function Input:keypressed(key)
@@ -268,7 +274,7 @@ local button_to_gamepad = {a = 'fdown', y = 'fup', x = 'fleft', b = 'fright', ba
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
 
 function Input:gamepadpressed(joystick, button)
-    self.state[button_to_gamepad[button]] = true 
+    self.state[button_to_gamepad[button]] = true
 end
 
 function Input:gamepadreleased(joystick, button)
