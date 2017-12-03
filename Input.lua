@@ -76,7 +76,7 @@ end
 function Input:pressed(action)
     if action then
         for _, key in ipairs(self.binds[action]) do
-            if self.state[key] and not self.prev_state[key] then
+            if self:down(action) and not self.prev_state[key] then
                 return true
             end
         end
@@ -179,7 +179,8 @@ function Input:down(action, interval, delay)
                 return true
             end
 
-            local joystick = self.joysticks[self.joystick_index]
+            local joystick = love.joystick.getJoysticks()[self.joystick_index]
+
             if joystick then
                 if axis_to_button[key] then
                     return self.state[key]
@@ -244,6 +245,10 @@ function Input:setJoystickIndex(index)
   self.joystick_index = index
 end
 
+function Input:isJoystickConnected()
+  return love.joystick.getJoysticks()[self.joystick_index] ~= nil
+end
+
 function Input:keypressed(key)
     self.state[key] = true
 end
@@ -274,18 +279,24 @@ local button_to_gamepad = {a = 'fdown', y = 'fup', x = 'fleft', b = 'fright', ba
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
 
 function Input:gamepadpressed(joystick, button)
+  if joystick == self.joysticks[self.joystick_index] then
     self.state[button_to_gamepad[button]] = true
+  end
 end
 
 function Input:gamepadreleased(joystick, button)
+  if joystick == self.joysticks[self.joystick_index] then
     self.state[button_to_gamepad[button]] = false
     self.repeat_state[button_to_gamepad[button]] = false
+  end
 end
 
 local button_to_axis = {leftx = 'leftx', lefty = 'lefty', rightx = 'rightx', righty = 'righty', triggerleft = 'l2', triggerright = 'r2'}
 
 function Input:gamepadaxis(joystick, axis, newvalue)
+  if joystick == self.joysticks[self.joystick_index] then
     self.state[button_to_axis[axis]] = newvalue
+  end
 end
 
 return setmetatable({}, {__call = function(_, ...) return Input.new(...) end})
