@@ -76,7 +76,7 @@ end
 function Input:pressed(action)
     if action then
         for _, key in ipairs(self.binds[action]) do
-            if self:down(action) and not self.prev_state[key] then
+            if self.state[key] and not self.prev_state[key] then
                 return true
             end
         end
