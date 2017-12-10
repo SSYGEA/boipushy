@@ -147,66 +147,8 @@ for i = 1, 4 do
 end
 ```  
   
-#### Platformer character controls  
+<br>
   
-Platformers usually have very fluid controls that give the player lots of freedom. Thanks to this library's nature, it's very easy to get started with freeform platformer controls.
-
-```lua  
-local input = Input()
-input:bind("right", "move_right")
-input:bind("left", "move_left")
-input:bind("x", "jump")
-input:bind("c", "shoot")
-
--- your update function
-function update()
-   -- charge shoot attack
-   if input:down("shoot", .5) then
-    shootPower = shootPower + 1
-   end
-   
-   -- then release!
-   if input:released("shoot") then
-    shootBullet(shootPower)
-    shootPower = 0
-   end
-
-   -- general movement code
-   if input:down("move_right") then
-    if vx < 0 then vx = vx + deacceleration end
-    if vx < topSpeed then vx = vx + acceleration end
-   elseif input:down("move_left") then
-    if vx > 0 then vx = vx - deacceleration end
-    if vx > -topSpeed then vx = vx - acceleration end
-   else
-    vx = vx - math.min(math.abs(vx), friction) * (vx >= 0 and 1 or -1)
-   end
-   
-   -- dashing sequences
-   if input:sequence("move_right", .4, "move_right") then dashRight() end
-   if input:sequence("move_left", .4, "move_left") then dashLeft() end
-   
-   -- apply gravity
-   vy = vy - gravity
-   
-   -- jumping
-   if input:pressed("jump") and grounded then
-    vy = maxJumpHeight
-   end
-   
-   -- multiple jump heights
-   if input:released("jump") and not grounded and vy > minJumpHeight then
-    vy = minJumpHeight
-   end
-   
-   -- translate player here
-   
-   if grounded then vy = 0 end
-end
-```  
-  
-<br>  
-
 ### Key/mouse/gamepad Constants
 
 Keyboard constants are unchanged from [here](https://www.love2d.org/wiki/KeyConstant), but mouse and gamepad have been changed to the following:
