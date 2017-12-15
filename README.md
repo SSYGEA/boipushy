@@ -106,8 +106,49 @@ input:unbind('mouse1')
 
 Unbinding keys simply disconnects them from their actions. You can also use `input:unbindAll()` to unbind all bound keys.
 
-<br>
+<br>  
+  
+### Using multiple controllers  
+  
+```lua  
+local input = Input({joystick_index = 1})
+```  
+  
+Creating an `Input` instance like so allows you to define what index that the joystick belongs to (joystick 1 would be the first joystick to be connected, joystick 2 would be the second, etc).  
+You can also use `input:setJoystickIndex(index)` to set the index later.  
+Setting a joystick index to a controller that doesn't exit (yet) doesn't cause an error (but it still doesn't return true for any input events), so if you want to make sure that a controller is connected you can use `input:isJoystickConnected()` to check if a joystick is actually connected.  
+  
+<br>  
+  
+### Examples  
+  
+#### Using multiple player controllers in a multiplayer game  
+  
+Let's say that you want a character select screen where if anyone connects their controller and taps the "join" button, they'll join the game.  
+Here's one way to acheive that with this library:  
 
+```lua 
+-- your update function
+function update()
+  for _, input in pairs(playerInputs) do
+    if input:pressed("join") then
+      -- do player instantiation and input setting code here
+    end
+  end
+end
+
+local playerInputs = {}
+
+for i = 1, 4 do
+  local input = Input()
+  input:setJoystickIndex(i)
+  input:bind("fdown", "join")
+  playerInputs[i] = input
+end
+```  
+  
+<br>
+  
 ### Key/mouse/gamepad Constants
 
 Keyboard constants are unchanged from [here](https://www.love2d.org/wiki/KeyConstant), but mouse and gamepad have been changed to the following:
