@@ -49,7 +49,9 @@ function Input.new()
     self.sequences = {}
 
     -- Gamepads... currently only supports 1 gamepad, adding support for more is not that hard, just lazy.
-    self.joysticks = love.joystick.getJoysticks()
+    if love.joystick then
+        self.joysticks = love.joystick.getJoysticks()
+    end
 
     -- Register callbacks automagically
     local callbacks = {'keypressed', 'keyreleased', 'mousepressed', 'mousereleased', 'gamepadpressed', 'gamepadreleased', 'gamepadaxis', 'wheelmoved', 'update'}
