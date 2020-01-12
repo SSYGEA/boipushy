@@ -151,6 +151,14 @@ local gamepad_to_button = {fdown = 'a', fup = 'y', fleft = 'x', fright = 'b', ba
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
 local axis_to_button = {leftx = 'leftx', lefty = 'lefty', rightx = 'rightx', righty = 'righty', l2 = 'triggerleft', r2 = 'triggerright'}
 
+function Input:isKeyboardKey(key)
+    isKeyboardKey = true
+    if key_to_button[key] or gamepad_to_button[key] or axis_to_button[key] then 
+        isKeyboardKey = false
+    end
+    return isKeyboardKey
+end
+
 function Input:down(action, interval, delay)
     if action and delay and interval then
         for _, key in ipairs(self.binds[action]) do
@@ -174,17 +182,23 @@ function Input:down(action, interval, delay)
 
     elseif action and not interval and not delay then
         for _, key in ipairs(self.binds[action]) do
-            if (love.keyboard.isDown(key) or love.mouse.isDown(key_to_button[key] or 0)) then
-                return true
-            end
-            
-            -- Supports only 1 gamepad, add more later...
-            if self.joysticks[1] then
-                if axis_to_button[key] then
-                    return self.state[key]
-                elseif gamepad_to_button[key] then
-                    if self.joysticks[1]:isGamepadDown(gamepad_to_button[key]) then
-                        return true
+
+            if self:isKeyboardKey(key) then
+                if love.keyboard.isDown(key) then
+                    return true
+                end
+            else
+                if love.mouse.isDown(key_to_button[key] or 0) then
+                    return true
+                end
+                -- Supports only 1 gamepad, add more later...
+                if self.joysticks[1] then
+                    if axis_to_button[key] then
+                        return self.state[key]
+                    elseif gamepad_to_button[key] then
+                        if self.joysticks[1]:isGamepadDown(gamepad_to_button[key]) then
+                            return true
+                        end
                     end
                 end
             end
